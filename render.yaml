@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: argo-pest-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12
+      - key: CORS_ALLOW_ORIGINS
+        value: "*"
+      - key: GATE_MODEL_FILENAME
+        value: best_pest_and_non_pest.onnx
+      - key: YOLO_MODEL_FILENAME
+        value: best_detect_pest.onnx
+      - key: CLASSIFY_MODEL_FILENAME
+        value: best_classify_pest.onnx
+      - key: GATE_MODEL_URL
+        sync: false
+      - key: YOLO_MODEL_URL
+        sync: false
+      - key: CLASSIFY_MODEL_URL
+        sync: false
+
+  - type: web
+    name: argo-pest-frontend
+    runtime: python
+    plan: free
+    buildCommand: pip install -r frontend/requirements.txt
+    startCommand: streamlit run frontend/app.py --server.address 0.0.0.0 --server.port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12
+      - key: ARGO_PEST_API_URL
+        value: https://argo-pest-api.onrender.com
