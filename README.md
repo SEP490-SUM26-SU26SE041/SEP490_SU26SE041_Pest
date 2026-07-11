@@ -191,3 +191,93 @@ detections
 annotated_image_base64
 ```
 
+## Deploy len Render
+
+Project co san `render.yaml`, co the deploy bang Render Blueprint.
+
+Backend service:
+
+```text
+argo-pest-api
+```
+
+Frontend service:
+
+```text
+argo-pest-frontend
+```
+
+Trong Render backend `argo-pest-api`, set Environment Variables:
+
+```text
+GATE_MODEL_URL=https://huggingface.co/nonametd/argo_pest/resolve/main/best_pest_and_non_pest.onnx
+YOLO_MODEL_URL=https://huggingface.co/nonametd/argo_pest/resolve/main/best_detect_pest.onnx
+CLASSIFY_MODEL_URL=https://huggingface.co/nonametd/argo_pest/resolve/main/best_classify_pest.onnx
+```
+
+Sau do deploy:
+
+```text
+Manual Deploy -> Clear build cache & deploy
+```
+
+Kiem tra backend Render:
+
+```text
+https://argo-pest-api.onrender.com/health
+```
+
+Trong frontend `argo-pest-frontend`, set:
+
+```text
+ARGO_PEST_API_URL=https://argo-pest-api.onrender.com
+```
+
+## Git va file khong nen commit
+
+Khong commit cac file local nay:
+
+```text
+venv/
+models/
+*.onnx
+*.onnx.data
+*.pt
+*.pth
+```
+
+Nhung file nay da duoc cau hinh trong `.gitignore`.
+
+## Loi thuong gap
+
+### Backend health ok false
+
+Mo:
+
+```text
+/health
+```
+
+Doc truong `error`. Neu thieu `.onnx.data`, can upload file `.onnx.data` len Hugging Face hoac dat file vao `models/`.
+
+### Frontend bao khong goi duoc backend
+
+Kiem tra backend co chay khong:
+
+```text
+http://localhost:8000/health
+```
+
+Neu backend chay port 8001, frontend phai set:
+
+```powershell
+$env:ARGO_PEST_API_URL="http://localhost:8001"
+```
+
+### Port 8000 bi chiem
+
+Chay backend bang port 8001:
+
+```powershell
+.\venv\Scripts\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8001
+```
